@@ -16,7 +16,9 @@ async def read_file(path: str) -> str:
     return content
 
 
-def get_playbook_hosts(playbook_content: str, hosts_content: str) -> list[Playbook]:
+def get_playbook_hosts(
+    playbook_content: str, hosts_content: str
+) -> dict[HostType, Playbook]:
     playbook_dict = _parse_playbook(playbook_content)
     playbook_hosts = _parse_hosts(hosts_content, playbook_dict)
     return playbook_hosts
@@ -34,9 +36,9 @@ def _parse_playbook(content: str) -> dict[HostType, PlaybookIn]:
 
 def _parse_hosts(
     content: str, playbook_dict: dict[HostType, PlaybookIn]
-) -> list[Playbook]:
+) -> dict[HostType, Playbook]:
     lines = content.splitlines()
-    result_playbook: list[Playbook] = []
+    result_playbook: dict[HostType, Playbook] = {}
     current_hosts_group: HostType | None = None
     for line in lines:
         clean_line = line.strip()
@@ -60,15 +62,17 @@ def _parse_hosts(
             )
             if current_hosts_group is None or playbook_item is None:
                 continue
-            if not result_playbook or result_playbook[-1].hosts != current_hosts_group:
-                result_playbook.append(
-                    Playbook(**playbook_item.model_dump(), addresses=[host_address])
+            if current_hosts_group not in result_playbook:
+                result_playbook[current_hosts_group] = Playbook(
+                    **playbook_item.model_dump(), addresses=[host_address]
                 )
-            else:
-                result_playbook[-1].addresses.append(host_address)
+            elif host_address not in result_playbook[current_hosts_group].addresses:
+                result_playbook[current_hosts_group].addresses.append(host_address)
     if not result_playbook:
         logging.error(
             "No execution plan created. Check if your hosts file groups "
             "match the 'hosts' keys in your playbook YAML."
         )
+    print(result_playbook)
     return result_playbook
+

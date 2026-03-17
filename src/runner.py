@@ -3,16 +3,16 @@ import logging
 import asyncssh
 
 from src.config import settings
-from src.schema import Playbook, Task, TaskStatus
+from src.schema import HostType, Playbook, Task, TaskStatus
 
 
 async def run_playbook(
     semaphore: asyncio.Semaphore,
-    playbook: list[Playbook],
+    playbook: dict[HostType, Playbook],
     username: str,
 ) -> None:
     tasks = []
-    for play in playbook:
+    for play in playbook.values():
         for address in play.addresses:
             for task in play.tasks:
                 tasks.append(

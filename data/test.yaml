@@ -1,12 +1,12 @@
 - hosts: webservers
   tasks:
-    - name: Server uptime
-      bash: uptime
-    - name: Server disk usage
-      bash: du -h
+    - name: Slow Task 1
+      bash: sleep 3 && echo "Done 1"
+    - name: Slow Task 2
+      bash: sleep 3 && echo "Done 2"
 - hosts: dbservers
   tasks:
-    - name: Server uptime
-      bash: uptime
-    - name: Server disk usage
-      bash: du -h
+    - name: Slow Task 1
+      bash: sleep 3 && echo "Done 1"
+    - name: Slow Task 2
+      bash: sleep 3 && echo "Done 2"
