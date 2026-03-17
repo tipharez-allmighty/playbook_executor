@@ -73,6 +73,5 @@ def _parse_hosts(
             "No execution plan created. Check if your hosts file groups "
             "match the 'hosts' keys in your playbook YAML."
         )
-    print(result_playbook)
     return result_playbook
 
