@@ -102,7 +102,7 @@ You can then edit the `.env` file to change the following values:
 
 ### Testing
 
-   **Run Unit Tests (Optional)**:
+1.  **Run unit tests (Optional):**
 
     ```bash
     # Validate the internal logic, YAML parsing, and Pydantic schemas using pytest:
@@ -118,7 +118,7 @@ The `test_setup.sh` script handles: generating keys, authorizing SSH, and creati
     bash test_setup.sh
     ```
 
-2.  **Execute Playbook:**
+3.  **Execute Playbook:**
 
     ```bash
     uv run python main.py playbooks/test.yaml
