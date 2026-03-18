@@ -22,11 +22,19 @@ async def main():
 
     current_user = getpass.getuser()
     semaphore = asyncio.Semaphore(settings.MAX_CONCURRENT_TASKS)
-    await run_playbook(
-        semaphore=semaphore, playbook=playbook_data, username=current_user
-    )
-    logging.info("-------------------------------------------\n")
-    logging.info("Playbook execution finished.")
+    try:
+        await asyncio.wait_for(
+            run_playbook(
+                semaphore=semaphore, playbook=playbook_data, username=current_user
+            ),
+            timeout=settings.GLOBAL_TIMEOUT,
+        )
+        logging.info("-------------------------------------------\n")
+        logging.info("Playbook execution finished.")
+    except asyncio.TimeoutError:
+        logging.critical(
+            f"Global timeout of {settings.GLOBAL_TIMEOUT} seconds has been reached! Some tasks were still running and have been cancelled. "
+        )
 
 
 if __name__ == "__main__":

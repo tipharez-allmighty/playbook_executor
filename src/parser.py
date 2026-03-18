@@ -7,6 +7,7 @@ from src.schema import PlaybookIn, Playbook, HostType
 
 
 async def read_file(path: str) -> str:
+    """Asynchronously reads and returns the entire content of a file from the specified path."""
     try:
         async with aiofiles.open(path, "r") as file:
             content = await file.read()
@@ -19,12 +20,14 @@ async def read_file(path: str) -> str:
 def get_playbook_hosts(
     playbook_content: str, hosts_content: str
 ) -> dict[HostType, Playbook]:
+    """Combines playbook definitions and inventory data into a mapped execution plan for all hosts."""
     playbook_dict = _parse_playbook(playbook_content)
     playbook_hosts = _parse_hosts(hosts_content, playbook_dict)
     return playbook_hosts
 
 
 def _parse_playbook(content: str) -> dict[HostType, PlaybookIn]:
+    """Parses YAML content into a dictionary of validated PlaybookIn models keyed by host type."""
     playbook: dict[HostType, PlaybookIn] = {}
     playbook_dict = yaml.safe_load(content)
     for item in playbook_dict:
@@ -37,6 +40,7 @@ def _parse_playbook(content: str) -> dict[HostType, PlaybookIn]:
 def _parse_hosts(
     content: str, playbook_dict: dict[HostType, PlaybookIn]
 ) -> dict[HostType, Playbook]:
+    """Processes hosts file to map specific IP addresses to their corresponding playbook tasks."""
     lines = content.splitlines()
     result_playbook: dict[HostType, Playbook] = {}
     current_hosts_group: HostType | None = None

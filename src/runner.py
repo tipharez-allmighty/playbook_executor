@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 import asyncssh
 
 from src.config import settings
@@ -11,6 +12,7 @@ async def run_playbook(
     playbook: dict[HostType, Playbook],
     username: str,
 ) -> None:
+    """Orchestrates the concurrent execution of all tasks across all hosts defined in the playbook."""
     tasks = []
     for play in playbook.values():
         for address in play.addresses:
@@ -29,6 +31,7 @@ async def run_playbook(
 async def run_remote_task(
     semaphore: asyncio.Semaphore, current_user: str, address: str, task: Task
 ) -> None:
+    """Connects to a remote host via SSH and executes a task within the provided concurrency limit."""
     try:
         host, port = _get_host_and_port(address)
         async with semaphore:
@@ -36,7 +39,7 @@ async def run_remote_task(
                 host=host,
                 port=port,
                 username=current_user,
-                login_timeout=settings.TIMEOUT,
+                login_timeout=settings.TASK_TIMEOUT,
                 known_hosts=settings.SSH_KNOWN_HOSTS_FILE
                 if settings.SSH_KNOWN_HOSTS_FILE
                 else None,
@@ -61,6 +64,7 @@ async def run_remote_task(
 
 
 def _get_host_and_port(address: str) -> tuple[str, int]:
+    """Parses a string address into a host and port tuple, defaulting to port 22 if none is specified."""
     address_parts = address.strip().split(":")
     host = address_parts[0]
     port = int(address_parts[1]) if len(address_parts) > 1 else 22
