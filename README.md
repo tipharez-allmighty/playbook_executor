@@ -111,7 +111,7 @@ You can then edit the `.env` file to change the following values:
 
 The `test_setup.sh` script handles: generating keys, authorizing SSH, and creating the `/etc/playbook` directory.
 
-1.  **Run test setup script:**
+2.  **Run test setup script:**
 
     ```bash
     # Requires sudo for /etc/playbook creation
