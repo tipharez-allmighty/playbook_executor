@@ -29,11 +29,13 @@ async def main():
             ),
             timeout=settings.GLOBAL_TIMEOUT,
         )
-        logging.info("-------------------------------------------\n")
-        logging.info("Playbook execution finished.")
+        logging.info("\nPlaybook execution finished.")
     except asyncio.TimeoutError:
         logging.critical(
-            f"Global timeout of {settings.GLOBAL_TIMEOUT} seconds has been reached! Some tasks were still running and have been cancelled. "
+            (
+                f"\nGlobal timeout of {settings.GLOBAL_TIMEOUT} seconds has been reached! "
+                "Some tasks were still running and have been cancelled."
+            )
         )
 
 

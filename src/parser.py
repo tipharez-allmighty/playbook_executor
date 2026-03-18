@@ -3,11 +3,11 @@ import yaml
 
 import aiofiles
 
-from src.schema import PlaybookIn, Playbook, HostType
+from src.schema import PlaybookBase, Playbook, HostType
 
 
 async def read_file(path: str) -> str:
-    """Asynchronously reads and returns the entire content of a file from the specified path."""
+    """Asynchronously reads and returns the entire content of a file."""
     try:
         async with aiofiles.open(path, "r") as file:
             content = await file.read()
@@ -26,19 +26,19 @@ def get_playbook_hosts(
     return playbook_hosts
 
 
-def _parse_playbook(content: str) -> dict[HostType, PlaybookIn]:
-    """Parses YAML content into a dictionary of validated PlaybookIn models keyed by host type."""
-    playbook: dict[HostType, PlaybookIn] = {}
+def _parse_playbook(content: str) -> dict[HostType, PlaybookBase]:
+    """Parses YAML content into a dictionary of validated PlaybookBase models keyed by host type."""
+    playbook: dict[HostType, PlaybookBase] = {}
     playbook_dict = yaml.safe_load(content)
     for item in playbook_dict:
-        playbook_item = PlaybookIn.model_validate(item)
+        playbook_item = PlaybookBase.model_validate(item)
         playbook[playbook_item.hosts] = playbook_item
 
     return playbook
 
 
 def _parse_hosts(
-    content: str, playbook_dict: dict[HostType, PlaybookIn]
+    content: str, playbook_dict: dict[HostType, PlaybookBase]
 ) -> dict[HostType, Playbook]:
     """Processes hosts file to map specific IP addresses to their corresponding playbook tasks."""
     lines = content.splitlines()
