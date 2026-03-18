@@ -68,10 +68,13 @@ def _parse_hosts(
                 )
             elif host_address not in result_playbook[current_hosts_group].addresses:
                 result_playbook[current_hosts_group].addresses.append(host_address)
+            else:
+                logging.info(
+                    f"Skipping duplicate host [{host_address}] in group a [{current_hosts_group}]."
+                )
     if not result_playbook:
         logging.error(
             "No execution plan created. Check if your hosts file groups "
             "match the 'hosts' keys in your playbook YAML."
         )
     return result_playbook
-

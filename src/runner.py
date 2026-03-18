@@ -19,7 +19,7 @@ async def run_playbook(
                     run_remote_task(
                         semaphore=semaphore,
                         current_user=username,
-                        host=address,
+                        address=address,
                         task=task,
                     )
                 )
@@ -27,12 +27,14 @@ async def run_playbook(
 
 
 async def run_remote_task(
-    semaphore: asyncio.Semaphore, current_user: str, host: str, task: Task
+    semaphore: asyncio.Semaphore, current_user: str, address: str, task: Task
 ) -> None:
     try:
+        host, port = _get_host_and_port(address)
         async with semaphore:
             async with asyncssh.connect(
                 host=host,
+                port=port,
                 username=current_user,
                 login_timeout=settings.TIMEOUT,
                 known_hosts=settings.SSH_KNOWN_HOSTS_FILE
@@ -55,4 +57,11 @@ async def run_remote_task(
                             f"[{status} | {host} | Task: {task.name}] | {clean_line}"
                         )
     except Exception as e:
-        logging.error(f"Connection error for {host}. Error: {e}", exc_info=True)
+        logging.error(f"Connection error for {address}. Error: {e}", exc_info=True)
+
+
+def _get_host_and_port(address: str) -> tuple[str, int]:
+    address_parts = address.strip().split(":")
+    host = address_parts[0]
+    port = int(address_parts[1]) if len(address_parts) > 1 else 22
+    return host, port
