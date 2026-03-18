@@ -10,21 +10,23 @@ Before a single connection is made, the parser safely maps out what needs to hap
 
 * **Reads & Validates:** It reads your YAML playbook and uses Pydantic to strictly validate the structure. If your YAML is malformed, it catches it immediately.
 * **Maps Inventory:** It reads your hosts file, looking for `[groups]`. It matches these groups to the `hosts:` keys in your playbook.
-* **Builds the Execution Plan:** It flattens this mapping into a concrete plan, attaching specific IP addresses (and custom ports) to their required tasks while automatically skipping duplicate IPs to save time.
+* **Builds the Execution Plan:** It flattens this mapping into a concrete plan, attaching specific IP addresses to their required tasks while automatically skipping duplicate IPs to save time.
 
 **2. The Runner (The Execution Engine)**
 
-Once the plan is built, the runner takes over to execute it at high speed:
+Once the plan is built, the runner takes over to execute it:
 
 * **Asynchronous Execution:** It uses asyncio to bundle all tasks and fire them off simultaneously, rather than waiting for one server to finish before moving to the next.
 * **Traffic Control:** It wraps the connections in an `asyncio.Semaphore`. If you have 100 tasks but a `MAX_CONCURRENT_TASKS` of 10, it ensures only 10 SSH connections are open at once, preventing your local machine from crashing or remote servers from rate-limiting you.
-* **Live Log Streaming:** It uses asyncssh to execute the bash commands. It captures the output (stdout on success, stderr on failure) and streams it back to your console line-by-line with clean formatting, including the exact task name, IP, and success/fail status.## Prerequisites
+* **Live Log Streaming:** It uses asyncssh to execute the bash commands. It captures the output (stdout on success, stderr on failure) and streams it back to your console line-by-line with clean formatting, including the exact task name, IP, and success/fail status.
+
+## Prerequisites
 
 Before running the executor, the remote hosts (including localhost for testing) must have an SSH server active.
 
 ### SSH Service Setup
 
-#### For Arch Linux:
+#### For Arch or Fedora Linux:
 
 The service name is usually `sshd`.
 
@@ -63,7 +65,6 @@ ssh localhost
 #### Using `uv`
 
 ```bash
-# macOS / Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies and create virtual environment automatically
@@ -78,7 +79,7 @@ source .venv/bin/activate
 ```bash
 python -m pip install --upgrade pip
 python -m venv .venv
-source .venv/bin/activate  # macOS/Linux
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -101,7 +102,7 @@ You can then edit the `.env` file to change the following values:
 
 ### Testing
 
-  **Run Unit Tests (Optional)**:
+   **Run Unit Tests (Optional)**:
 
     ```bash
     # Validate the internal logic, YAML parsing, and Pydantic schemas using pytest:
@@ -149,4 +150,4 @@ To run against real servers:
 
 *   **Generates SSH Keys:** It looks for a local SSH key (`~/.ssh/id_rsa`). If you don't already have one, it generates it automatically in the background.
 *   **Deploys the Inventory:** It checks if the system inventory (`/etc/playbook/hosts`) already exists. If it *doesn't*, it creates the directory and copies your local `hosts` file there. If it *does* exist, it leaves it alone and uses the existing file to protect your configuration.
-*   **IMPORTANT: Authorizes servers:** It reads the IPs from the inventory file and runs `ssh-copy-id` against every server. This pushes your public key to the remote machines, allowing the Python script to connect without asking for passwords. If the key already exists on a remote server, it will show a warning and simply use the existing one without overwriting or failing.
+*   **IMPORTANT! Authorizes servers:** It reads the IPs from the inventory file and runs `ssh-copy-id` against every server. This pushes your public key to the remote machines, allowing the Python script to connect without asking for passwords. If the key already exists on a remote server, it will show a warning and simply use the existing one without overwriting or failing.
