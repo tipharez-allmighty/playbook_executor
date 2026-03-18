@@ -60,7 +60,7 @@ async def run_remote_task(
                             f"[{status} | {host} | Task: {task.name}] | {clean_line}"
                         )
     except Exception as e:
-        logging.error(f"Connection error for {address}. Error: {e}", exc_info=True)
+        logging.error(f"Connection error for {address}. Error: {e}")
 
 
 def _get_host_and_port(address: str) -> tuple[str, int]:
