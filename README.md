@@ -58,11 +58,9 @@ ssh localhost
 
 ## Installation
 
-### 1. Install the Package Manager
+### Install the Package Manager
 
-#### Using `uv`)
-
-Install `uv`:
+#### Using `uv`
 
 ```bash
 # macOS / Linux
@@ -103,7 +101,7 @@ You can then edit the `.env` file to change the following values:
 
 ### Testing
 
-1.  **Run Unit Tests**:
+  **Run Unit Tests (Optional)**:
 
     ```bash
     # Validate the internal logic, YAML parsing, and Pydantic schemas using pytest:
@@ -112,11 +110,17 @@ You can then edit the `.env` file to change the following values:
 
 The `test_setup.sh` script handles: generating keys, authorizing SSH, and creating the `/etc/playbook` directory.
 
-**Setup Test Infrastructure:**
+1.  **Run test setup script:**
 
     ```bash
     # Requires sudo for /etc/playbook creation
     bash test_setup.sh
+    ```
+
+2.  **Execute Playbook:**
+
+    ```bash
+    uv run python main.py playbooks/test.yaml
     ```
 
 **What this script actually does:**
@@ -124,14 +128,6 @@ The `test_setup.sh` script handles: generating keys, authorizing SSH, and creati
 *   **Generates SSH Keys:** It checks for a local SSH key (`~/.ssh/id_rsa`). If you don't have one, it generates it automatically. If it already exists, you will see a message saying it's skipping generation.
 *   **Authorizes Local Keys:** It takes your public key and adds it directly to your own `~/.ssh/authorized_keys` file. This allows your machine to SSH into itself without asking for a password.
 *   **Deploys Test Inventory:** It prompts you asking if you want to create a default local hosts file. If you say yes, it will create `/etc/playbook/hosts` and fill it with dummy data (`localhost` and `127.0.0.1`). *Note: Unlike the prod script, if you answer yes here, it WILL overwrite any existing file at that location.*
-
-**Run Test Playbook:**
-
-Execute the test playbook against your local machine to verify the end-to-end SSH flow:
-
-```bash
-uv run python main.py playbooks/test.yaml
-```
 
 ### Production
 
@@ -146,7 +142,7 @@ To run against real servers:
 2.  **Execute Playbook:**
 
     ```bash
-    uv run python main.py playbooks/your_playbook.yaml
+    uv run python main.py playbooks/test.yaml
     ```
 
 **What this script actually does:**
